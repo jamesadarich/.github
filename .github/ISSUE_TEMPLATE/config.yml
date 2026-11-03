@@ -1,0 +1,2 @@
+blank_issues_enabled: false
+# No contact links for now. The schema rejects an empty list, so the key is omitted.

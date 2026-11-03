@@ -1,0 +1,73 @@
+name: Bug report
+description: Something is broken or behaves differently from how it should.
+title: "[Bug]: "
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: A good bug report says exactly how to make the problem happen again. Include the smallest set of steps you can.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong, in a sentence or two.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Blocker
+        - Major
+        - Minor
+        - Cosmetic
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Version, OS, device.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste any relevant output. It is formatted as code automatically.
+      render: shell
+    validations:
+      required: false
+  - type: dropdown
+    id: source
+    attributes:
+      label: Filed by
+      options:
+        - Human
+        - Agent
+        - App or service
+    validations:
+      required: true

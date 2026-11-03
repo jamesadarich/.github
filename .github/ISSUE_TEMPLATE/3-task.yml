@@ -1,0 +1,61 @@
+name: Task
+description: A scoped unit of work, small enough to hand straight to a coding agent.
+title: "[Task]: "
+labels: [task]
+body:
+  - type: markdown
+    attributes:
+      value: A good task can be picked up without asking questions. State the goal, how to tell it is done, and how to check.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Links, related issues, background.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Files or areas in scope
+    validations:
+      required: false
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+    validations:
+      required: false
+  - type: textarea
+    id: verification
+    attributes:
+      label: How to verify
+      description: Commands to run.
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Filed by
+      options:
+        - Human
+        - Agent
+        - App or service
+    validations:
+      required: true

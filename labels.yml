@@ -1,0 +1,17 @@
+# Label manifest. Pushed to consumer repos by scripts/sync-labels.sh.
+# Issue forms only apply labels that already exist in the target repo.
+- name: bug
+  color: d73a4a
+  description: Something is broken
+- name: enhancement
+  color: a2eeef
+  description: New feature or improvement
+- name: task
+  color: 0e8a16
+  description: Scoped unit of work, ready to pick up
+- name: needs-triage
+  color: fbca04
+  description: Not yet reviewed
+- name: filed-by-agent
+  color: 5319e7
+  description: Created by an agent or service

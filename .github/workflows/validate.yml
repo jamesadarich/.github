@@ -1,0 +1,54 @@
+name: Validate templates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    name: Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install check-jsonschema
+      - name: Issue forms
+        run: >
+          check-jsonschema --builtin-schema vendor.github-issue-forms
+          .github/ISSUE_TEMPLATE/1-bug.yml
+          .github/ISSUE_TEMPLATE/2-feature.yml
+          .github/ISSUE_TEMPLATE/3-task.yml
+      - name: Template chooser config
+        run: >
+          check-jsonschema --builtin-schema vendor.github-issue-config
+          .github/ISSUE_TEMPLATE/config.yml
+
+  contract:
+    name: Contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python scripts/check-contract.py
+
+  lint:
+    name: Workflow and script lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: actionlint
+        uses: docker://rhysd/actionlint:1.7.7
+        with:
+          args: -color
+      - name: shellcheck
+        run: shellcheck scripts/sync-labels.sh
