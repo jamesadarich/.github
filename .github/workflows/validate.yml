@@ -15,22 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install check-jsonschema
       - name: Issue forms
         run: >
-          check-jsonschema --builtin-schema vendor.github-issue-forms
+          pipx run check-jsonschema --builtin-schema vendor.github-issue-forms
           .github/ISSUE_TEMPLATE/1-bug.yml
           .github/ISSUE_TEMPLATE/2-feature.yml
           .github/ISSUE_TEMPLATE/3-task.yml
       - name: Template chooser config
         run: >
-          check-jsonschema --builtin-schema vendor.github-issue-config
+          pipx run check-jsonschema --builtin-schema vendor.github-issue-config
           .github/ISSUE_TEMPLATE/config.yml
       - name: Dependabot config
-        run: check-jsonschema --builtin-schema vendor.dependabot .github/dependabot.yml
+        run: pipx run check-jsonschema --builtin-schema vendor.dependabot .github/dependabot.yml
 
   contract:
     name: Contract
