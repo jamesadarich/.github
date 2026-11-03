@@ -18,9 +18,14 @@ edited in one place and no consumer repo holds a copy.
 | `.github/ISSUE_TEMPLATE/config.yml` | Template chooser: blank issues off, no contact links |
 | `.github/pull_request_template.md` | Default PR template |
 | `.github/workflows/validate.yml` | CI that validates the templates |
+| `.github/workflows/live.yml` | CI that checks the published repo on GitHub |
 | `labels.yml` | Label manifest used by the forms |
 | `scripts/sync-labels.sh` | Pushes `labels.yml` to consumer repos |
-| `scripts/check-contract.py` | Checks that forms, labels and the parsing contract agree |
+| `scripts/check-contract.mjs` | Checks that forms, labels and the parsing contract agree |
+| `scripts/check-live.mjs` | Live checks against the published repo, run by `live.yml` |
+| `scripts/lib.mjs` | Shared helpers: loads the forms and labels, builds and parses issue bodies |
+| `test/` | Unit tests for the checks (`npm test`) |
+| `package.json` | Node 22+, with one dependency (`yaml`) |
 | `docs/parsing-contract.md` | The heading contract agents and services follow |
 
 ## How consumer repos use this
@@ -130,19 +135,46 @@ these checks gate the merge:
 
 1. **Schema.** `check-jsonschema` against GitHub's issue-form and issue-config
    schemas.
-2. **Contract.** `scripts/check-contract.py`: unique ids, a `Filed by` dropdown
+2. **Contract.** `npm test`, then `scripts/check-contract.mjs`: unique ids, a `Filed by` dropdown
    in every form, every form label in `labels.yml`, and every field label
    documented in `docs/parsing-contract.md`.
 3. **Lint.** `actionlint` on the workflow and `shellcheck` on `sync-labels.sh`.
 
 Branch protection on `main` requires these jobs to pass.
 
+### Live checks
+
+`.github/workflows/live.yml` checks the published repo on GitHub itself, using
+`scripts/check-live.mjs`. It runs after every push to `main`, weekly, and on
+demand from the Actions tab. It fails if:
+
+- the repo isn't public;
+- any raw URL above doesn't return `text/plain`;
+- GitHub doesn't report all three forms as issue templates for this repo, which
+  is how a broken form shows up;
+- a second run of `scripts/sync-labels.sh` changes anything, or the repo's
+  labels don't match `labels.yml`.
+
+Set the repository variable `E2E_CONSUMER_REPO` (for example
+`jamesadarich/some-repo`) to also check that a consumer repo inherits the
+forms.
+
+Run it by hand with **file-test-issues** ticked to file one issue per form with
+`gh issue create --body`, the way an agent would. The workflow reads each issue
+back, checks its headings, "Filed by" value and labels against the contract,
+then closes it as not planned.
+
+The blank-issue option and the agent-session test have no API, so they stay
+manual.
+
 To run the checks locally:
 
 ```sh
-pip install check-jsonschema pyyaml
+pip install check-jsonschema
+npm ci
 check-jsonschema --builtin-schema vendor.github-issue-forms .github/ISSUE_TEMPLATE/[0-9]*.yml
 check-jsonschema --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
-python3 scripts/check-contract.py
+npm test
+npm run check
 shellcheck scripts/sync-labels.sh
 ```

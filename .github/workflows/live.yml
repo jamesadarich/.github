@@ -1,0 +1,71 @@
+name: Live checks
+
+# Checks the published repo on GitHub itself: what validate.yml can't see
+# from a checkout. Runs after every change to main, weekly in case GitHub's
+# behaviour changes, and on demand.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      file-test-issues:
+        description: File, check and close one test issue per form
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: live-checks
+  cancel-in-progress: false
+
+jobs:
+  live:
+    name: Live checks
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OWNER: ${{ github.repository_owner }}
+      CONSUMER_REPO: ${{ vars.E2E_CONSUMER_REPO }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Repo is public
+        run: node scripts/check-live.mjs visibility
+
+      - name: Raw URLs serve plain text
+        run: node scripts/check-live.mjs raw-urls
+
+      - name: GitHub loads every form
+        run: node scripts/check-live.mjs templates "$GITHUB_REPOSITORY"
+
+      - name: Consumer repo inherits the forms
+        if: env.CONSUMER_REPO != ''
+        run: node scripts/check-live.mjs templates "$CONSUMER_REPO"
+
+      - name: Label sync is idempotent
+        run: |
+          scripts/sync-labels.sh "$GITHUB_REPOSITORY"
+          second="$(scripts/sync-labels.sh "$GITHUB_REPOSITORY")"
+          echo "$second"
+          if grep -v ': 0 label(s) created or updated$' <<<"$second"; then
+            echo "::error::Second sync run changed labels; sync-labels.sh is not idempotent"
+            exit 1
+          fi
+
+      - name: Labels match labels.yml
+        run: node scripts/check-live.mjs labels
+
+      - name: Issues filed outside the form match the contract
+        if: github.event_name == 'workflow_dispatch' && inputs.file-test-issues
+        run: node scripts/check-live.mjs round-trip
