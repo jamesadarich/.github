@@ -18,6 +18,8 @@ edited in one place and no consumer repo holds a copy.
 | `.github/ISSUE_TEMPLATE/config.yml` | Template chooser: blank issues off, no contact links |
 | `.github/pull_request_template.md` | Default PR template |
 | `.github/workflows/validate.yml` | CI that validates the templates |
+| `.github/dependabot.yml` | Weekly Dependabot updates for npm and GitHub Actions |
+| `.github/workflows/dependabot-auto-merge.yml` | Auto-merges Dependabot's patch and minor updates |
 | `.github/workflows/live.yml` | CI that checks the published repo on GitHub |
 | `labels.yml` | Label manifest used by the forms |
 | `scripts/sync-labels.sh` | Pushes `labels.yml` to consumer repos |
@@ -179,7 +181,26 @@ pip install check-jsonschema
 npm ci
 check-jsonschema --builtin-schema vendor.github-issue-forms .github/ISSUE_TEMPLATE/[0-9]*.yml
 check-jsonschema --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
+check-jsonschema --builtin-schema vendor.dependabot .github/dependabot.yml
 npm test
 npm run check
 shellcheck scripts/sync-labels.sh
 ```
+
+## Dependencies
+
+Dependabot checks the npm dependency (`yaml`) and the GitHub Actions in the
+workflows weekly, and labels its PRs `dependencies`. For patch and minor
+updates, `dependabot-auto-merge.yml` turns on auto-merge (squash), so GitHub
+merges the PR once the checks required on `main` pass. Major updates stay open
+for review.
+
+This relies on two repo settings:
+
+- **Allow auto-merge** is turned on (Settings → General → Pull Requests).
+- `main` is protected by a rule that requires the Schema, Contract and lint
+  checks. Without one, there are no checks for auto-merge to wait for, so a
+  PR can merge without CI passing.
+
+A merge made by the workflow's token doesn't trigger `push` workflows, so Live
+checks don't run after a Dependabot merge. The weekly scheduled run covers it.

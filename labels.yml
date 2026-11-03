@@ -15,3 +15,6 @@
 - name: filed-by-agent
   color: "5319e7"
   description: Created by an agent or service
+- name: dependencies
+  color: "0366d6"
+  description: Dependency update
