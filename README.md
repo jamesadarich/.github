@@ -21,8 +21,11 @@ edited in one place and no consumer repo holds a copy.
 | `.github/workflows/live.yml` | CI that checks the published repo on GitHub |
 | `labels.yml` | Label manifest used by the forms |
 | `scripts/sync-labels.sh` | Pushes `labels.yml` to consumer repos |
-| `scripts/check-live.sh` | Live checks against the published repo, run by `live.yml` |
-| `scripts/check-contract.py` | Checks that forms, labels and the parsing contract agree |
+| `scripts/check-contract.mjs` | Checks that forms, labels and the parsing contract agree |
+| `scripts/check-live.mjs` | Live checks against the published repo, run by `live.yml` |
+| `scripts/lib.mjs` | Shared helpers: loads the forms and labels, builds and parses issue bodies |
+| `test/` | Unit tests for the checks (`npm test`) |
+| `package.json` | Node 22+, with one dependency (`yaml`) |
 | `docs/parsing-contract.md` | The heading contract agents and services follow |
 
 ## How consumer repos use this
@@ -132,18 +135,18 @@ these checks gate the merge:
 
 1. **Schema.** `check-jsonschema` against GitHub's issue-form and issue-config
    schemas.
-2. **Contract.** `scripts/check-contract.py`: unique ids, a `Filed by` dropdown
+2. **Contract.** `npm test`, then `scripts/check-contract.mjs`: unique ids, a `Filed by` dropdown
    in every form, every form label in `labels.yml`, and every field label
    documented in `docs/parsing-contract.md`.
-3. **Lint.** `actionlint` on the workflow and `shellcheck` on the scripts in `scripts/`.
+3. **Lint.** `actionlint` on the workflow and `shellcheck` on `sync-labels.sh`.
 
 Branch protection on `main` requires these jobs to pass.
 
 ### Live checks
 
-`.github/workflows/live.yml` checks the published repo on GitHub itself. It
-runs after every push to `main`, weekly, and on demand from the Actions tab. It
-fails if:
+`.github/workflows/live.yml` checks the published repo on GitHub itself, using
+`scripts/check-live.mjs`. It runs after every push to `main`, weekly, and on
+demand from the Actions tab. It fails if:
 
 - the repo isn't public;
 - any raw URL above doesn't return `text/plain`;
@@ -167,9 +170,11 @@ manual.
 To run the checks locally:
 
 ```sh
-pip install check-jsonschema pyyaml
+pip install check-jsonschema
+npm ci
 check-jsonschema --builtin-schema vendor.github-issue-forms .github/ISSUE_TEMPLATE/[0-9]*.yml
 check-jsonschema --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
-python3 scripts/check-contract.py
-shellcheck scripts/*.sh
+npm test
+npm run check
+shellcheck scripts/sync-labels.sh
 ```

@@ -34,19 +34,24 @@ jobs:
       CONSUMER_REPO: ${{ vars.E2E_CONSUMER_REPO }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
 
       - name: Repo is public
-        run: scripts/check-live.sh visibility
+        run: node scripts/check-live.mjs visibility
 
       - name: Raw URLs serve plain text
-        run: scripts/check-live.sh raw-urls
+        run: node scripts/check-live.mjs raw-urls
 
       - name: GitHub loads every form
-        run: scripts/check-live.sh templates "$GITHUB_REPOSITORY"
+        run: node scripts/check-live.mjs templates "$GITHUB_REPOSITORY"
 
       - name: Consumer repo inherits the forms
         if: env.CONSUMER_REPO != ''
-        run: scripts/check-live.sh templates "$CONSUMER_REPO"
+        run: node scripts/check-live.mjs templates "$CONSUMER_REPO"
 
       - name: Label sync is idempotent
         run: |
@@ -59,8 +64,8 @@ jobs:
           fi
 
       - name: Labels match labels.yml
-        run: scripts/check-live.sh labels
+        run: node scripts/check-live.mjs labels
 
       - name: Issues filed outside the form match the contract
         if: github.event_name == 'workflow_dispatch' && inputs.file-test-issues
-        run: scripts/check-live.sh round-trip
+        run: node scripts/check-live.mjs round-trip
