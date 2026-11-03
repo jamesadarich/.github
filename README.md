@@ -26,7 +26,6 @@ edited in one place and no consumer repo holds a copy.
 | `scripts/lib.mjs` | Shared helpers: loads the forms and labels, builds and parses issue bodies |
 | `test/` | Unit tests for the checks (`npm test`) |
 | `AGENTS.md` | Instructions for agents working in this repo, including the snippet below |
-| `CLAUDE.md` | Imports `AGENTS.md` for Claude Code |
 | `package.json` | Node 22+, with one dependency (`yaml`) |
 | `docs/parsing-contract.md` | The heading contract agents and services follow |
 
@@ -90,9 +89,13 @@ Raw URLs (agents fetch from `main`; file names don't change once published):
 
 GitHub doesn't inherit `AGENTS.md` from this repo. Paste this into each consumer
 repo's `AGENTS.md` by hand. This repo's own [`AGENTS.md`](AGENTS.md) carries the
-same text, and a unit test keeps the two copies identical. Claude Code reads
-`CLAUDE.md`, so a consumer repo can add a `CLAUDE.md` containing the line
-`@AGENTS.md` to point Claude Code at the same instructions.
+same text, and a unit test keeps the two copies identical.
+
+Claude Code v2.1.277 and later reads `AGENTS.md` directly, as long as the repo
+has no `CLAUDE.md` or `CLAUDE.local.md`. If a repo does have a `CLAUDE.md`, or
+uses an older Claude Code, add the line `@AGENTS.md` to that `CLAUDE.md` so it
+imports the same instructions. See
+[Claude Code's memory docs](https://code.claude.com/docs/en/memory#agents-md).
 
 ```markdown
 ## Issues and pull requests
