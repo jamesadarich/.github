@@ -25,6 +25,8 @@ edited in one place and no consumer repo holds a copy.
 | `scripts/check-live.mjs` | Live checks against the published repo, run by `live.yml` |
 | `scripts/lib.mjs` | Shared helpers: loads the forms and labels, builds and parses issue bodies |
 | `test/` | Unit tests for the checks (`npm test`) |
+| `AGENTS.md` | Instructions for agents working in this repo, including the snippet below |
+| `CLAUDE.md` | Imports `AGENTS.md` for Claude Code |
 | `package.json` | Node 22+, with one dependency (`yaml`) |
 | `docs/parsing-contract.md` | The heading contract agents and services follow |
 
@@ -87,7 +89,10 @@ Raw URLs (agents fetch from `main`; file names don't change once published):
 ### AGENTS.md snippet
 
 GitHub doesn't inherit `AGENTS.md` from this repo. Paste this into each consumer
-repo's `AGENTS.md` by hand:
+repo's `AGENTS.md` by hand. This repo's own [`AGENTS.md`](AGENTS.md) carries the
+same text, and a unit test keeps the two copies identical. Claude Code reads
+`CLAUDE.md`, so a consumer repo can add a `CLAUDE.md` containing the line
+`@AGENTS.md` to point Claude Code at the same instructions.
 
 ```markdown
 ## Issues and pull requests

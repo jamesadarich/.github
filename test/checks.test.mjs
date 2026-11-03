@@ -56,3 +56,11 @@ test("checkIssue reports wrong headings, Filed by and missing labels", () => {
   assert.ok(errors.some((e) => e.includes("'needs-triage' not applied")));
   assert.ok(errors.some((e) => e.includes("'filed-by-agent' not applied")));
 });
+
+test("AGENTS.md carries the README's snippet word for word", () => {
+  const readme = readText("README.md");
+  const section = readme.slice(readme.indexOf("### AGENTS.md snippet"));
+  const snippet = section.match(/```markdown\n([\s\S]*?)\n```/)?.[1];
+  assert.ok(snippet, "README has no AGENTS.md snippet");
+  assert.ok(readText("AGENTS.md").includes(snippet), "AGENTS.md does not contain the README snippet");
+});
