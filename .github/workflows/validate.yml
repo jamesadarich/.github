@@ -29,6 +29,8 @@ jobs:
         run: >
           check-jsonschema --builtin-schema vendor.github-issue-config
           .github/ISSUE_TEMPLATE/config.yml
+      - name: Dependabot config
+        run: check-jsonschema --builtin-schema vendor.dependabot .github/dependabot.yml
 
   contract:
     name: Contract

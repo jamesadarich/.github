@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { checkContract } from "../scripts/check-contract.mjs";
 import { checkIssue } from "../scripts/check-live.mjs";
-import { buildBody, loadForms, loadLabels, NO_RESPONSE, parseSections, readText } from "../scripts/lib.mjs";
+import { buildBody, loadForms, loadLabels, NO_RESPONSE, parseSections, readText, readYaml } from "../scripts/lib.mjs";
 
 const forms = loadForms();
 const labels = loadLabels();
@@ -63,4 +63,11 @@ test("AGENTS.md carries the README's snippet word for word", () => {
   const snippet = section.match(/```markdown\n([\s\S]*?)\n```/)?.[1];
   assert.ok(snippet, "README has no AGENTS.md snippet");
   assert.ok(readText("AGENTS.md").includes(snippet), "AGENTS.md does not contain the README snippet");
+});
+
+test("every label Dependabot applies is in labels.yml", () => {
+  const known = new Set(labels.map((label) => label.name));
+  const used = readYaml(".github/dependabot.yml").updates.flatMap((update) => update.labels ?? []);
+  assert.ok(used.length, "dependabot.yml applies no labels");
+  for (const label of used) assert.ok(known.has(label), `'${label}' is not in labels.yml`);
 });

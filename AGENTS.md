@@ -36,5 +36,6 @@ npm run check
 pip install check-jsonschema
 check-jsonschema --builtin-schema vendor.github-issue-forms .github/ISSUE_TEMPLATE/[0-9]*.yml
 check-jsonschema --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
+check-jsonschema --builtin-schema vendor.dependabot .github/dependabot.yml
 shellcheck scripts/sync-labels.sh
 ```
