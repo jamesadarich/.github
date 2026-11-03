@@ -31,10 +31,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       OWNER: ${{ github.repository_owner }}
-      CONSUMER_REPO: ${{ vars.E2E_CONSUMER_REPO }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -45,13 +44,6 @@ jobs:
 
       - name: Raw URLs serve plain text
         run: node scripts/check-live.mjs raw-urls
-
-      - name: GitHub loads every form
-        run: node scripts/check-live.mjs templates "$GITHUB_REPOSITORY"
-
-      - name: Consumer repo inherits the forms
-        if: env.CONSUMER_REPO != ''
-        run: node scripts/check-live.mjs templates "$CONSUMER_REPO"
 
       - name: Label sync is idempotent
         run: |

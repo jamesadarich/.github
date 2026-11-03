@@ -158,22 +158,19 @@ demand from the Actions tab. It fails if:
 
 - the repo isn't public;
 - any raw URL above doesn't return `text/plain`;
-- GitHub doesn't report all three forms as issue templates for this repo, which
-  is how a broken form shows up;
 - a second run of `scripts/sync-labels.sh` changes anything, or the repo's
   labels don't match `labels.yml`.
-
-Set the repository variable `E2E_CONSUMER_REPO` (for example
-`jamesadarich/some-repo`) to also check that a consumer repo inherits the
-forms.
 
 Run it by hand with **file-test-issues** ticked to file one issue per form with
 `gh issue create --body`, the way an agent would. The workflow reads each issue
 back, checks its headings, "Filed by" value and labels against the contract,
 then closes it as not planned.
 
-The blank-issue option and the agent-session test have no API, so they stay
-manual.
+GitHub has no API that reliably lists issue forms: the GraphQL
+`issueTemplates` field returned none of this repo's forms. So the schema check
+in `validate.yml` is the guard against a broken form, and these stay manual:
+seeing Bug, Feature and Task in a consumer repo's chooser, the blank-issue
+option, and the agent-session test.
 
 To run the checks locally:
 

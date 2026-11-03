@@ -5,7 +5,6 @@
 //
 //   visibility        the repo is public
 //   raw-urls          every raw URL in the README returns 200 as text/plain
-//   templates [REPO]  GitHub reports every form as an issue template for REPO
 //   labels            the repo's labels include labels.yml exactly
 //   round-trip        file one issue per form outside the form (as an agent
 //                     would), read it back, check it against the contract,
@@ -43,19 +42,6 @@ async function rawUrls() {
     if (!result.startsWith("200 text/plain")) errors.push(`${url}: expected 200 text/plain, got ${result}`);
   }
   return errors;
-}
-
-async function templates(repo = REPO) {
-  const [owner, name] = repo.split("/");
-  const query = `query($owner: String!, $name: String!) {
-    repository(owner: $owner, name: $name) { issueTemplates { name } } }`;
-  const data = ghJson(["api", "graphql", "-f", `query=${query}`, "-f", `owner=${owner}`, "-f", `name=${name}`]);
-  const reported = (data.data.repository.issueTemplates ?? []).map((template) => template.name);
-  console.log(`${repo} issue templates: ${reported.join(", ") || "(none)"}`);
-  return loadForms()
-    .map(({ form }) => form.name)
-    .filter((formName) => !reported.includes(formName))
-    .map((formName) => `${repo}: GitHub does not report '${formName}'. The form may be invalid, or the repo has its own ISSUE_TEMPLATE folder.`);
 }
 
 async function labels() {
@@ -106,12 +92,12 @@ async function roundTrip() {
   return errors;
 }
 
-const checks = { visibility, "raw-urls": rawUrls, templates, labels, "round-trip": roundTrip };
+const checks = { visibility, "raw-urls": rawUrls, labels, "round-trip": roundTrip };
 
 if (import.meta.main ?? process.argv[1] === new URL(import.meta.url).pathname) {
   const [command, ...rest] = process.argv.slice(2);
   if (!checks[command]) {
-    console.error(`usage: check-live.mjs <${Object.keys(checks).join("|")}> [repo]`);
+    console.error(`usage: check-live.mjs <${Object.keys(checks).join("|")}>`);
     process.exit(2);
   }
   const errors = await checks[command](...rest);
