@@ -34,23 +34,19 @@ jobs:
       CONSUMER_REPO: ${{ vars.E2E_CONSUMER_REPO }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install pyyaml
 
       - name: Repo is public
-        run: python scripts/check-live.py visibility
+        run: scripts/check-live.sh visibility
 
       - name: Raw URLs serve plain text
-        run: python scripts/check-live.py raw-urls
+        run: scripts/check-live.sh raw-urls
 
       - name: GitHub loads every form
-        run: python scripts/check-live.py templates "$GITHUB_REPOSITORY"
+        run: scripts/check-live.sh templates "$GITHUB_REPOSITORY"
 
       - name: Consumer repo inherits the forms
         if: env.CONSUMER_REPO != ''
-        run: python scripts/check-live.py templates "$CONSUMER_REPO"
+        run: scripts/check-live.sh templates "$CONSUMER_REPO"
 
       - name: Label sync is idempotent
         run: |
@@ -63,8 +59,8 @@ jobs:
           fi
 
       - name: Labels match labels.yml
-        run: python scripts/check-live.py labels
+        run: scripts/check-live.sh labels
 
       - name: Issues filed outside the form match the contract
         if: github.event_name == 'workflow_dispatch' && inputs.file-test-issues
-        run: python scripts/check-live.py round-trip
+        run: scripts/check-live.sh round-trip

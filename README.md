@@ -18,8 +18,10 @@ edited in one place and no consumer repo holds a copy.
 | `.github/ISSUE_TEMPLATE/config.yml` | Template chooser: blank issues off, no contact links |
 | `.github/pull_request_template.md` | Default PR template |
 | `.github/workflows/validate.yml` | CI that validates the templates |
+| `.github/workflows/live.yml` | CI that checks the published repo on GitHub |
 | `labels.yml` | Label manifest used by the forms |
 | `scripts/sync-labels.sh` | Pushes `labels.yml` to consumer repos |
+| `scripts/check-live.sh` | Live checks against the published repo, run by `live.yml` |
 | `scripts/check-contract.py` | Checks that forms, labels and the parsing contract agree |
 | `docs/parsing-contract.md` | The heading contract agents and services follow |
 
@@ -133,7 +135,7 @@ these checks gate the merge:
 2. **Contract.** `scripts/check-contract.py`: unique ids, a `Filed by` dropdown
    in every form, every form label in `labels.yml`, and every field label
    documented in `docs/parsing-contract.md`.
-3. **Lint.** `actionlint` on the workflow and `shellcheck` on `sync-labels.sh`.
+3. **Lint.** `actionlint` on the workflow and `shellcheck` on the scripts in `scripts/`.
 
 Branch protection on `main` requires these jobs to pass.
 
@@ -169,5 +171,5 @@ pip install check-jsonschema pyyaml
 check-jsonschema --builtin-schema vendor.github-issue-forms .github/ISSUE_TEMPLATE/[0-9]*.yml
 check-jsonschema --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
 python3 scripts/check-contract.py
-shellcheck scripts/sync-labels.sh
+shellcheck scripts/*.sh
 ```

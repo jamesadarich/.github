@@ -51,4 +51,4 @@ jobs:
         with:
           args: -color
       - name: shellcheck
-        run: shellcheck scripts/sync-labels.sh
+        run: shellcheck scripts/*.sh
