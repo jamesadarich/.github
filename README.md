@@ -137,6 +137,31 @@ these checks gate the merge:
 
 Branch protection on `main` requires these jobs to pass.
 
+### Live checks
+
+`.github/workflows/live.yml` checks the published repo on GitHub itself. It
+runs after every push to `main`, weekly, and on demand from the Actions tab. It
+fails if:
+
+- the repo isn't public;
+- any raw URL above doesn't return `text/plain`;
+- GitHub doesn't report all three forms as issue templates for this repo, which
+  is how a broken form shows up;
+- a second run of `scripts/sync-labels.sh` changes anything, or the repo's
+  labels don't match `labels.yml`.
+
+Set the repository variable `E2E_CONSUMER_REPO` (for example
+`jamesadarich/some-repo`) to also check that a consumer repo inherits the
+forms.
+
+Run it by hand with **file-test-issues** ticked to file one issue per form with
+`gh issue create --body`, the way an agent would. The workflow reads each issue
+back, checks its headings, "Filed by" value and labels against the contract,
+then closes it as not planned.
+
+The blank-issue option and the agent-session test have no API, so they stay
+manual.
+
 To run the checks locally:
 
 ```sh
